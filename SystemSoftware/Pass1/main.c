@@ -1,96 +1,114 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-int main(){
-    FILE *input, *foptab, *intermediate, *symtab, *length, *rsymtab;
-    int loc,len,straddr;
-    // input - input.txt , optab.txt
-    // output - intermediate.txt, symtab.txt, length.txt
+void passOne(char label[10], char opcode[10], char operand[10], char code[10], char mnemonic[3]);
+void display();
 
-    input = fopen("input.txt","r");
-    foptab = fopen("optab.txt","r");
-    rsymtab = fopen("symtab.txt","r");
+int main()
+{
+    char label[10], opcode[10], operand[10], code[10], mnemonic[3];
+    passOne(label, opcode, operand, code, mnemonic);
+    return 0;
+}
 
-    intermediate = fopen("intermediate.txt","w+");
-    symtab = fopen("symtab.txt","w+");
-    length = fopen("length.txt","w+");
+void passOne(char label[10], char opcode[10], char operand[10], char code[10], char mnemonic[3]) 
+{
+    int locctr, start, length;
 
-    char label[20], opcode[20], operand[20];
-    
+    FILE *fp1, *fp2, *fp3, *fp4,*fp5;                                  
 
-    fscanf(input,"%s %s %d",label,opcode,&straddr);
-    if(strcmp(opcode,"START") == 0){
-        loc = straddr;
-        fscanf(input,"%s %s %s",label,opcode,operand);
+    // read mode
+    fp1 = fopen("input.txt", "r");
+    fp2 = fopen("optab.txt", "r");
+    // write mode
+    fp3 = fopen("symtab.txt", "w");
+    fp4 = fopen("intermediate.txt", "w");
+    fp5 = fopen("length.txt", "w");
 
+    fscanf(fp1, "%s %s %s", label, opcode, operand);       
+    if (strcmp(opcode, "START") == 0) {    
+        start = atoi(operand);         
+        locctr = start;
+        fprintf(fp4, " %s %s %s\n", label, opcode, operand);  
+        fscanf(fp1, "%s %s %s", label, opcode, operand);   
+    } 
+    else {
+        locctr = 0;
     }
-    else
-        loc = 0;
-    while(strcmp(opcode,"END") != 0){
-        // search if label in symtab 
-        char sym[20];
-        int add_sym;
-        printf("%s\n",label);
-        if(strcmp(label,"**") != 0){
-        while(!feof(rsymtab)){
-            fscanf(rsymtab,"%s %d\n",sym,&add_sym);
-            if(strcmp(label,sym) == 0){
-                printf("Error : Duplicate symbol\n");
-                return 1;
-                
-            }
+
+    while (strcmp(opcode, "END") != 0) {
+
+        fprintf(fp4, "%d %s %s %s\n", locctr, label, opcode, operand);
+        if (strcmp(label, "**") != 0) {
+            fprintf(fp3, "%s %d\n", label, locctr);
         }
-        // if not add (label, locctr) to symtab 
-        printf("%s %d\n",label,loc);
-        fprintf(symtab,"%s %d\n",label,loc);
-        }
-        // search in optab 
-        while (!feof(foptab))
-        {
-            fscanf(foptab,"%s %d",sym,&add_sym);
-            if(strcmp(opcode,sym) == 0){
-                loc += 3;
+        fscanf(fp2, "%s %s", code, mnemonic);
+        while (strcmp(code, "END") != 0) {
+            if (strcmp(opcode, code) == 0) {   
+                locctr += 3;
                 break;
             }
-
+            fscanf(fp2, "%s %s", code, mnemonic);
         }
-
-        if(strcmp(opcode,"RESB") == 0)
-            loc += atoi(operand);
-        else if(strcmp(opcode,"RESW") == 0)
-            loc += 3*atoi(operand);
-        else if(strcmp(opcode,"BYTE") == 0){
-            if(operand[0] == 'X')
-                loc += 1;
-            else
-                loc += strlen(operand) - 2;
+        if (strcmp(opcode, "WORD") == 0) {
+            locctr += 3;
         }
-        else if(strcmp(opcode,"WORD") == 0)
-            loc += 3;
-        
-        
-        fprintf(intermediate,"%d %s %s %s\n",loc,label,opcode,operand);
-        printf("%d %s %s %s\n",loc,label,opcode,operand);
-        fscanf(input,"%s %s %s",label,opcode,operand);
-
-        
-
+        else if (strcmp(opcode, "RESW") == 0) {
+            locctr += (3 * (atoi(operand)));                       
+        }
+        else if (strcmp(opcode, "BYTE") == 0) {
+            ++locctr;
+        }
+        else if (strcmp(opcode, "RESB") == 0) {
+            locctr += atoi(operand);
+        }
+        fscanf(fp1, "%s %s %s", label, opcode, operand);
     }
-        printf("%s\n",opcode);
+    fprintf(fp4, "%d %s %s %s\n", locctr, label, opcode, operand);
 
-    printf("%d %s %s %s\n",loc,label,opcode,operand);
+    fclose(fp4);
+    fclose(fp3);
+    fclose(fp2);
+    fclose(fp1);
 
-    fprintf(intermediate,"%d %s %s %s\n",loc,label,opcode,operand);
-    len = loc - straddr;
-    fprintf(length,"%d",len);
-    fclose(input);
-    fclose(foptab);
-    fclose(intermediate);
-    fclose(symtab);
-    fclose(length);
-    return 0;
+    display();
+ 
+    length = locctr - start;
+    fprintf(fp5, "%d", length);
+    fclose(fp5);
+    printf("\nThe length of the code : %d\n", length);
+}
 
+void display() {
 
+    char str;
+    FILE *fp1, *fp2, *fp3;   
 
+    printf("\nThe contents of Input Table :\n\n");
+    fp1 = fopen("input.txt", "r");
+    str = fgetc(fp1);
+    while (str != EOF) {
+        printf("%c", str);
+        str = fgetc(fp1);
+    }
+    fclose(fp1);
+
+    printf("\n\nThe contents of Output Table :\n\n");
+    fp2 = fopen("intermediate.txt", "r");
+    str = fgetc(fp2);
+    while (str != EOF) {
+        printf("%c", str);
+        str = fgetc(fp2);
+    }
+    fclose(fp2);
+
+    printf("\n\nThe contents of Symbol Table :\n\n");
+    fp3 = fopen("symtab.txt", "r");
+    str = fgetc(fp3);
+    while (str != EOF) {
+        printf("%c", str);
+        str = fgetc(fp3);
+    }
+    fclose(fp3);
 }

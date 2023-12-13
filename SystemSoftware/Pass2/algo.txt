@@ -1,0 +1,43 @@
+begin
+    read first input line 
+    if OPCODE = 'START' then 
+        begin 
+            write listing line 
+            read next input line
+        end { if START }
+    write Header record to object program 
+
+    initialize first Text record
+    while OPCODE != 'END' do
+        begin
+            search OPTAB for OPCODE 
+            if found then 
+            begin 
+                if symbol in OPERAND field then 
+                begin
+                    search SYMTAB for OPERAND
+                    if found then 
+                        store symbol value as operand address 
+                    else 
+                        begin 
+                            store 0 as operand address
+                            assemble object code instructions 
+                        end {else}
+                end 
+            end{opcode found}
+            else if OPCODE = 'BYTE' or 'WORD' then 
+                convert constant to object code 
+            if object code will not fit into current Text record then 
+                begin
+                    write Text record to object program
+                    create new Text record 
+                    add object code to Text record
+                end {Text}
+        write listing line
+        read next input line 
+    end{while END}
+    write last Text record 
+    write End record 
+    write last listing line 
+end {Pass 2}
+    
