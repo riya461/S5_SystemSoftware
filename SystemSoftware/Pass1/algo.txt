@@ -1,0 +1,52 @@
+--- PASS ONE ---
+
+Input - input.txt, optab.txt
+Output - intermediate.txt, symtab.txt, length.txt
+
+begin
+	read first input line 
+	if OPCODE = 'START' then 
+		begin 
+			save #[OPERAND] as starting address
+			initialize LOCCTR to starting address
+			write line to intermediate file 
+			read next input line 
+		end { if START }
+	else 
+		set LOCCTR to 0
+	while OPCODE != 'END' then 
+		begin 
+			if line not comment then 
+				begin 
+					if symbol in LABEL field
+						begin 
+							search LABEL in SYMTAB
+							if found 
+								set error flag 
+							else 
+								insert (LABEL,LOCCTR) to SYMTAB 
+						end { if symbol }
+					search OPTAB for OPCODE 
+					if found then 
+						add 3 indicating instruction length to LOCCTR 
+					else if OPCODE = 'RESB' then 
+						add #[OPERAND] to LOCCTR 
+					else if OPCODE = 'RESW' then 
+						add 3*#[OPERAND] to LOCCTR 
+					else if OPCODE = 'WORD' then 
+						add 3 to LOCCTR 
+					else if OPCODE = 'BYTE' then 
+						begin
+							find length of the constant in bytes
+							add length to LOCCTR 
+						end {if BYTE}
+					else 
+						set error flag 
+				end { if not comment}
+			write line to intermediate file 
+			read input from next line 
+		end { while not END }
+	write last line to intermediate file 
+	save (LOCCTR - starting address) as length of program 
+end { program }
+
