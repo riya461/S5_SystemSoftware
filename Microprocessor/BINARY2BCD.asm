@@ -1,0 +1,39 @@
+ASSUME CS:CODE, DS:DATA
+DATA SEGMENT 
+    BINARY_NUM DB 19H
+    BCD_NUM DB ?
+    MSB DB ?
+    DATA ENDS 
+CODE SEGMENT 
+    START: MOV AX,DATA
+    MOV DS,AX
+    XOR AX,AX 
+    
+    MOV AL, BINARY_NUM
+    MOV DL,64H
+    DIV DL
+    ; QUOTIENT IN AL AND REMAINDER IN AH 
+    MOV MSB,AL
+    MOV BL,AH  
+    
+    XOR AX,AX
+    MOV AL,BL
+    
+    MOV DL,0AH
+    DIV DL
+           
+    MOV BL,AH
+    MOV DL,10H
+    MUL DL
+    ADD AL,BL
+    
+    MOV BCD_NUM,AL
+    
+    MOV AH,4CH
+    INT 21H
+    
+    CODE ENDS
+END START
+    
+   
+   

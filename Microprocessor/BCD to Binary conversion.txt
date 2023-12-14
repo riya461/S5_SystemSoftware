@@ -1,0 +1,31 @@
+//BCD to Binary conversion
+
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    BCD_NUM DB 25H       ; Example: BCD number 25H
+    BINARY_NUM DB ?      ; Binary equivalent of BCD number
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AL, BCD_NUM      ; Load BCD number into AL
+    MOV BL, AL
+    AND BL, 0FH          ; Extract the low nibble (BCD digit)
+    MOV CX, 0004
+    SHR AL, CL           ; Shift BCD number right to get the next digit
+    MOV DL, 0AH
+    MUL DL               ; Multiply the BCD digit by 10
+    ADD AL, BL           ; Add the result to AL
+    MOV BINARY_NUM, AL   ; Store the binary equivalent in BINARY_NUM
+
+    ; Terminate the program
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START
+T

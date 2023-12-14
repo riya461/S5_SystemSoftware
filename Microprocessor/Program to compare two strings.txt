@@ -1,0 +1,42 @@
+//Program to compare two strings
+
+ASSUME CS:CODE, DS:DATA, ES:DATA
+
+DATA SEGMENT
+    SOURCE DB 'Hello$', 0  ; Source string with null terminator
+    DEST DB 'Hello$', 0    ; Destination string with null terminator
+    COUNT EQU 05H
+    NEQ DB 'STRINGS NOT EQUAL$'
+    EQ DB 'STRINGS EQUAL$'
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV ES, AX
+
+    MOV SI, OFFSET SOURCE
+    MOV DI, OFFSET DEST
+    MOV CX, COUNT
+    CLD
+
+    REPE CMPSB
+    JNZ NTEQ
+
+    MOV AH, 09H
+    LEA DX, EQ
+    INT 21H
+    JMP EX
+
+NTEQ:
+    MOV AH, 09H
+    LEA DX, NEQ
+    INT 21H
+
+EX:
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+
+END START

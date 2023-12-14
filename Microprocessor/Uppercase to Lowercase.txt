@@ -1,0 +1,50 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    INPUT_STR DB 'HELLO', '$' ; Uppercase input string
+    OUTPUT_STR DB 6 DUP(?)     ; Output string
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    LEA SI, INPUT_STR  ; Load address of the input string
+    LEA DI, OUTPUT_STR ; Load address of the output string
+
+CONVERT_LOOP:
+    MOV AL, [SI]       ; Load character from input string
+    CMP AL, '$'        ; Check for end of string
+    JE  END_PROGRAM    ; If end of string, exit
+
+    CMP AL, 'A'
+    JB  COPY_CHAR      ; If less than 'A', copy unchanged
+
+    CMP AL, 'Z'
+    JA  COPY_CHAR      ; If greater than 'Z', copy unchanged
+
+    ADD AL, 32         ; Convert to lowercase ('A' = 65, 'a' = 97, difference = 32)
+
+COPY_CHAR:
+    MOV [DI], AL       ; Copy character to output string
+    INC SI             ; Move to the next character in the input string
+    INC DI             ; Move to the next position in the output string
+    JMP CONVERT_LOOP   ; Repeat the process
+
+END_PROGRAM:
+    MOV BYTE PTR [DI], '$' ; Terminate the output string with a null character
+
+    CALL PRINT_STRING  ; Print the lowercase string
+
+    MOV AH, 4CH         ; Exit program
+    INT 21H
+
+PRINT_STRING:
+    MOV AH, 09H         ; DOS function to print string
+    LEA DX, OUTPUT_STR  ; Load address of the output string
+    INT 21H             ; Call DOS interrupt to print the string
+    RET
+
+CODE ENDS
+END START

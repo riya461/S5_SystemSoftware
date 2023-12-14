@@ -1,0 +1,31 @@
+ASSUME CS:CODE, DS: DATA
+
+DATA SEGMENT 
+   BCD_NUM DB 25H
+   BINARY_NUM DB ?
+   DATA ENDS 
+
+CODE SEGMENT 
+    START: MOV AX,DATA
+    MOV DS,AX
+    
+    MOV AL,BCD_NUM 
+    MOV CX,0004H   
+    
+    MOV BL,AL
+    AND BL,0FH
+    
+    SHR AL,CL
+    MOV DL,0AH
+    MUL DL
+    
+    ADD AL,BL
+    MOV BINARY_NUM,AL
+    
+    MOV AH,4CH
+    INT 21H
+    
+    CODE ENDS 
+END START
+   
+   

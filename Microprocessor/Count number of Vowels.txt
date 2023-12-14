@@ -1,0 +1,66 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    STRING DB "Lionel Messi$"
+    VOWEL_COUNT DW 0
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    LEA SI, STRING     ; Load address of the input string
+
+COUNT_VOWELS:
+    MOV AL, [SI]       ; Load character from input string
+    CMP AL, '$'        ; Check for end of string
+    JE  END_PROGRAM    ; If end of string, exit
+
+    CALL IS_VOWEL      ; Check if the character is a vowel
+    ADD VOWEL_COUNT, AX; Increment VOWEL_COUNT based on the result
+
+    INC SI             ; Move to the next character in the input string
+    JMP COUNT_VOWELS   ; Repeat the process
+
+END_PROGRAM:
+    ; VOWEL_COUNT now contains the count of vowels
+
+    MOV AH, 4CH         ; Exit program
+    INT 21H
+
+IS_VOWEL PROC
+    ; Input: AL (ASCII character)
+    ; Output: AX (0 if not a vowel, 1 if a vowel)
+
+    CMP AL, 'A'
+    JE  VOWEL_FOUND     ; 'A' is a vowel
+    CMP AL, 'E'
+    JE  VOWEL_FOUND     ; 'E' is a vowel
+    CMP AL, 'I'
+    JE  VOWEL_FOUND     ; 'I' is a vowel
+    CMP AL, 'O'
+    JE  VOWEL_FOUND     ; 'O' is a vowel
+    CMP AL, 'U'
+    JE  VOWEL_FOUND     ; 'U' is a vowel
+
+    CMP AL, 'a'
+    JE  VOWEL_FOUND     ; 'a' is a vowel
+    CMP AL, 'e'
+    JE  VOWEL_FOUND     ; 'e' is a vowel
+    CMP AL, 'i'
+    JE  VOWEL_FOUND     ; 'i' is a vowel
+    CMP AL, 'o'
+    JE  VOWEL_FOUND     ; 'o' is a vowel
+    CMP AL, 'u'
+    JE  VOWEL_FOUND     ; 'u' is a vowel
+
+    XOR AX, AX          ; Set result to 0 (not a vowel)
+    RET
+
+VOWEL_FOUND:
+    MOV AX, 1           ; Set result to 1 (vowel)
+    RET
+
+CODE ENDS
+END START

@@ -1,0 +1,37 @@
+                     ; COMPARE TWO STRINGS 
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT 
+    STR1 DB "HELLO WORLD$"  
+    STR2 DB "HELPO WORLD$"
+    COUNT EQU 0BH
+    NEQ DB "NOT EQUAL$"
+    EQ DB "EQUAL$"
+    
+    DATA ENDS 
+CODE SEGMENT 
+    START: MOV AX,DATA
+    MOV DS,AX
+    MOV ES,AX
+    
+    LEA SI,STR1
+    LEA DI,STR2
+    MOV CX,COUNT
+    CLD
+    
+    REPE CMPSB
+    JNZ NTEQ
+    
+    MOV AH,09H
+    LEA DX,EQ
+    INT 21H
+    JMP EX
+    
+    NTEQ: MOV AH,09H
+    LEA DX,NEQ
+    INT 21H
+    
+    EX: MOV AH,4CH
+    INT 21H
+    CODE ENDS
+END START

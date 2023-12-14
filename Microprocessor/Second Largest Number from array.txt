@@ -1,0 +1,53 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    LIST DW 53H, 25H, 32H, 02H
+    COUNT EQU 04
+    RESULT DW ?
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV DX, COUNT - 1
+    MOV BL, 00H 
+    MOV BH, 03H
+
+AGAIN0:
+    INC BL
+    CMP BL, BH
+    JZ LAST
+    MOV CX, DX
+    LEA SI, LIST
+
+AGAIN1:
+    CMP CX, 1         ; Check if it's the COUNT-1th iteration
+    JNE PR1
+
+    MOV AX, [SI]      ; Load the value at the memory location SI into AX
+    MOV [RESULT], AX  ; Store the value in the RESULT variable
+
+PR1:
+    MOV AX, [SI]
+    CMP AX, [SI + 2]
+    JL  SWAP
+    JMP CONTINUE
+
+SWAP:
+    XCHG [SI + 2], AX
+    XCHG [SI], AX
+
+CONTINUE:
+    ADD SI, 02
+    LOOP AGAIN1
+
+    DEC DX
+    JNZ AGAIN0
+    
+LAST:
+    MOV AH, 4CH
+    INT 21H
+
+CODE ENDS
+END START

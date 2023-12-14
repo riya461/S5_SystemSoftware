@@ -1,0 +1,33 @@
+DATA SEGMENT
+    NUM1 DD 0FFFFH, 0FFFFH
+    NUM2 DD 1111H, 1111H
+    SUM DD 0, 0, 0, 0
+DATA ENDS
+
+CODE SEGMENT
+    ASSUME CS:CODE, DS:DATA
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    ; Add LSB of NUM1 to AX
+    MOV AX, NUM1
+    ADD AX, NUM2
+    MOV SUM, AX   ; Store the LSB in SUM
+
+    ; Add MSB of NUM1 to AX with carry
+    MOV AX, NUM1 + 2
+    ADC AX, NUM2 + 2
+    JNC DOWN      ; Check for carry
+
+    ; If there's a carry, increment the high word of SUM
+    MOV SUM + 4, 1H
+
+DOWN:
+    MOV SUM + 2, AX
+
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+
+END START

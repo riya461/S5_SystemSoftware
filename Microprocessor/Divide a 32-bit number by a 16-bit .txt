@@ -1,0 +1,29 @@
+//Divide a 32-bit number by a 16-bit number
+
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    OPR1 DW 86AAH, 0001H  ; NUM is 186AAH
+    OPR2 DW 0064H         ; Divisor
+    QUO DW 01 DUP (?)     ; Quotient
+    REM DW 01 DUP (?)     ; Remainder
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AX, OPR1
+    MOV DX, OPR1 + 2
+    DIV OPR2
+
+    MOV QUO, AX
+    MOV REM, DX
+
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+
+END START
+

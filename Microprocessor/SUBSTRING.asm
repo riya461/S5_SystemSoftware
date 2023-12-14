@@ -1,0 +1,90 @@
+ ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    STR1 DB 'LIONEL MESSI'
+    LEN1 DW ($-STR1)
+    STR2 DB 'MESS'
+    LEN2 DW ($-STR2)
+    MSG_FOUND DB 'Substring found.$'
+    MSG_NOT_FOUND DB 'Substring not found.$'
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV ES, AX ; Assuming ES should also point to the DATA segment
+
+    LEA SI, STR1
+    LEA DI, STR2
+    MOV DX, LEN1
+    MOV CX, LEN2
+    CMP CX, DX
+    JA EXIT
+    JE SAMELENGTH
+    JB FIND
+
+SAMELENGTH:
+    XOR BX, BX
+    CLD
+    REPE CMPSB
+    JNE EXIT
+    INC BX
+EXIT:
+    MOV AH, 09h ; DOS function to print a string
+    CMP BX, 1
+    JE SUBSTRING_FOUND
+    LEA DX, MSG_NOT_FOUND
+    JMP PRINT_MESSAGE
+
+FIND:
+    MOV AL, [SI]
+    MOV AH, [DI]
+    CMP AL, AH
+    JE CHECK
+    JNE NOTEQL
+
+CHECK:
+    MOV CX, LEN2
+    MOV SP, SI
+    ADD SP, 1
+    CLD
+    REPE CMPSB
+    JNE TEMPRED
+    JMP GREEN
+
+TEMPRED:
+    MOV SI, SP
+    DEC DX
+    LEA DI, STR2
+    CMP DX, 0
+    JE RED
+    JMP FIND
+
+GREEN:
+    MOV BX, 1
+    JMP EXIT
+
+NOTEQL:
+    INC SI
+    DEC DX
+    CMP DX, 0
+    JE RED
+    JMP FIND
+
+RED:
+    MOV BX, 0
+    JMP EXIT
+
+PRINT_MESSAGE:
+    INT 21h
+    MOV AX, 4C00h ; DOS function to exit program
+    INT 21h
+
+SUBSTRING_FOUND:
+    LEA DX, MSG_FOUND
+    JMP PRINT_MESSAGE
+
+CODE ENDS
+
+END START

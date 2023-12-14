@@ -1,0 +1,38 @@
+ASSUME CS:CODE, DS:DATA
+
+DATA SEGMENT
+    HEX_NUMBER DB 0FFH      ; 2-digit hexadecimal number
+    RESULT_MSB DB 0        ; Variable to store the MSB of the result
+    RESULT_LSB DB 0        ; Variable to store the LSB of the result
+DATA ENDS
+
+CODE SEGMENT
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    XOR AX, AX            ; Clear AX
+    MOV AL, HEX_NUMBER     ; Load the 8-bit hexadecimal number into AL
+
+    MOV DL, 64H           ; Set divisor to 64H
+    DIV DL                ; Divide AL by BL, result in AL (quotient), AH (remainder)
+    MOV RESULT_MSB, AL    ; Store the MSB of the result in RESULT_MSB
+    MOV BL, AH            ; Move remainder AH to BL
+
+    XOR AX, AX            ; Clear AX
+    MOV AL, BL            ; Move BL to AL
+
+    MOV DL, 0AH           ; Set divisor to 0AH
+    DIV DL
+    MOV BL, AH
+    MOV DL, 10H
+    MUL DL
+    ADD AL,BL                ; Divide AL by 0AH, result in AL (quotient), AH (remainder)
+    MOV RESULT_LSB, AL    ; Store the LSB of the result in RESULT_LSB
+
+    MOV AH, 4CH           ; Exit program
+    INT 21H
+
+CODE ENDS
+
+END START
